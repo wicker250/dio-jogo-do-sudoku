@@ -2,17 +2,16 @@ package br.com.dio;
 
 import br.com.dio.model.Board;
 import br.com.dio.model.Space;
+import br.com.dio.util.PresetGames;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.stream.Stream;
 
 import static br.com.dio.util.BoardTemplate.BOARD_TEMPLATE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toMap;
 
 public class Main {
 
@@ -23,11 +22,6 @@ public class Main {
     private final static int BOARD_LIMIT = 9;
 
     public static void main(String[] args) {
-        final var positions = Stream.of(args)
-                .collect(toMap(
-                        k -> k.split(";")[0],
-                        v -> v.split(";")[1]
-                ));
         var option = -1;
         while (true){
             System.out.println("Selecione uma das opções a seguir");
@@ -43,7 +37,7 @@ public class Main {
             option = scanner.nextInt();
 
             switch (option){
-                case 1 -> startGame(positions);
+                case 1 -> startGame();
                 case 2 -> inputNumber();
                 case 3 -> removeNumber();
                 case 4 -> showCurrentGame();
@@ -56,11 +50,24 @@ public class Main {
         }
     }
 
-    private static void startGame(final Map<String, String> positions) {
+    private static void startGame() {
         if (nonNull(board)){
             System.out.println("O jogo já foi iniciado");
             return;
         }
+
+        System.out.println("Escolha a dificuldade:");
+        System.out.println("1 - Fácil");
+        System.out.println("2 - Médio");
+        System.out.println("3 - Difícil");
+        var difficulty = runUntilGetValidNumber(1, 3);
+
+        final Map<String, String> positions = switch (difficulty) {
+            case 1 -> PresetGames.toPositions(PresetGames.EASY);
+            case 2 -> PresetGames.toPositions(PresetGames.MEDIUM);
+            case 3 -> PresetGames.toPositions(PresetGames.HARD);
+            default -> throw new IllegalStateException("Dificuldade inválida");
+        };
 
         List<List<Space>> spaces = new ArrayList<>();
         for (int i = 0; i < BOARD_LIMIT; i++) {
